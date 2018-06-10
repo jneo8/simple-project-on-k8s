@@ -45,5 +45,7 @@ steps:
     "pull-image-frontend",
   ]
 images:
+- asia.gcr.io/$PROJECT_ID/$_API_REPO_NAME:$BRANCH_NAME
+- asia.gcr.io/$PROJECT_ID/$_API_REPO_NAME:$SHORT_SHA
 - asia.gcr.io/$PROJECT_ID/$_FRONTEND_REPO_NAME:$BRANCH_NAME
 - asia.gcr.io/$PROJECT_ID/$_FRONTEND_REPO_NAME:$SHORT_SHA
