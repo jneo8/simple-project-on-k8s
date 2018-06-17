@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
       - name: simple-api
-        image: asia.gcr.io/simple-project-198818/simple-api:v1
+        image: asia.gcr.io/simple-project-198818/simple-api:d40a0f6
         envFrom:
         - configMapRef:
             name: simple-api
