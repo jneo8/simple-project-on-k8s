@@ -59,7 +59,10 @@ spec:
           limits:
             cpu: "1"
             memory: "1G"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
+        readinessProbe:
+          exec:
+            command: ["curl", "-s", "-m", "0.01", "-H", "User-Agent: KubernetesHealthCheck/1.0", "http://127.0.0.1:8000/health"]
+          initialDelaySeconds: 3
+          periodSeconds: 1
+          successThreshold: 1
+          failureThreshold: 2
