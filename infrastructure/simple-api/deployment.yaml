@@ -50,11 +50,56 @@ spec:
         ports:
         - name: http
           containerPort: 8000
+        livenessProbe:
+          exec:
+            command: ["curl", "-s", "-m", "0.1", "-H", "User-Agent: KubernetesLivenessCheck/1.0", "http://127.0.0.1:8000/health"]
+          initialDelaySeconds: 3
+          periodSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
         readinessProbe:
           exec:
             command: ["curl", "-s", "-m", "0.01", "-H", "User-Agent: KubernetesHealthCheck/1.0", "http://127.0.0.1:8000/health"]
           initialDelaySeconds: 3
           periodSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: "0.1G"
+          limits:
+            cpu: "1"
+            memory: "1G"
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: simple-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simple-worker
+  template:
+    metadata:
+      labels:
+        app: simple-worker
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: simple-worker
+        image: asia.gcr.io/simple-project-198818/simple-api:d40a0f6
+        command: ["celery", "-A", "app:celery", "worker", "-P", "gevent", "--without-gossip", "-l", "info", "-c", "100", "--prefetch-multiplier", "1", "-Ofair"]
+        envFrom:
+        - configMapRef:
+            name: simple-api
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", "celery inspect -q -A app:celery -d celery@$(hostname) --timeout 10 ping"]
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 10
           successThreshold: 1
           failureThreshold: 3
         resources:
